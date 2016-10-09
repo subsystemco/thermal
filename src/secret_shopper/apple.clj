@@ -3,6 +3,8 @@
             [clj-time.coerce :as c]
             [clj-time.local :as l]))
 
+(def BUNDLE_ID "test-bundle-id")
+
 (defn transaction-id
   "Generate a transaction id from a date."
   [date]
@@ -47,12 +49,13 @@
      (dates :expires (t/plus date duration)))))
 
 (defn receipt
+  "Generate an app receipt."
   [date iaps]
   (merge
     {:receipt_type "ProductionSandbox"
      :adam_id 0
      :app_item_id 0
-     :bundle_id "derp"
+     :bundle_id BUNDLE_ID
      :application_version "12345"
      :download_id 0
      :version_external_identifier 0
