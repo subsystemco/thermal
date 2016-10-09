@@ -17,14 +17,15 @@
   [date]
   (l/format-local-time date :mysql))
 
+(def gmt-tz-id "Etc/GMT")
+(def gmt-tz (t/time-zone-for-id gmt-tz-id))
+(def la-tz-id "America/Los_Angeles")
+(def la-tz (t/time-zone-for-id la-tz-id))
+
 (defn dates
   "Return a map of dates in Apple's three formats: timestamp, GMT, and PST."
   [prop-name date]
-  (let [prop-name (name prop-name)
-        gmt-tz-id "Etc/GMT"
-        gmt-tz (t/time-zone-for-id gmt-tz-id)
-        la-tz-id "America/Los_Angeles"
-        la-tz (t/time-zone-for-id la-tz-id)]
+  (let [prop-name (name prop-name)]
     {(keyword (str prop-name "_date")) (str (format-date (t/to-time-zone date gmt-tz)) " " gmt-tz-id)
      (keyword (str prop-name "_date_ms")) (str (c/to-epoch date))
      (keyword (str prop-name "_date_pst")) (str (format-date (t/to-time-zone date la-tz)) " " la-tz-id)}))
@@ -44,3 +45,20 @@
      (dates :purchase date)
      (dates :original_purchase org-date)
      (dates :expires (t/plus date duration)))))
+
+(defn receipt
+  [date iaps]
+  (merge
+    {:receipt_type "ProductionSandbox"
+     :adam_id 0
+     :app_item_id 0
+     :bundle_id "derp"
+     :application_version "12345"
+     :download_id 0
+     :version_external_identifier 0
+     :original_application_version "1.0"
+     :in_app iaps}
+    ;; original_purchase is always the same date
+    (dates :original_purchase (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz))
+    (dates :receipt_creation date)
+    (dates :request (t/now))))
