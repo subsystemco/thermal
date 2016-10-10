@@ -1,1 +1,1 @@
-(ns secret-shopper.core)
+(ns thermal.core)

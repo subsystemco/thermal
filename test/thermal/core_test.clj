@@ -1,6 +1,6 @@
-(ns secret-shopper.core-test
+(ns thermal.core-test
   (:require [clojure.test :refer :all]
-            [secret-shopper.core :refer :all]))
+            [thermal.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

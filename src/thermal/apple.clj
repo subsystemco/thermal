@@ -1,4 +1,4 @@
-(ns secret-shopper.apple
+(ns thermal.apple
   (:require [clj-time.core :as t]
             [clj-time.coerce :as c]
             [clj-time.local :as l]))
