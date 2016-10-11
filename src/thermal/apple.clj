@@ -48,32 +48,32 @@
    (iap product duration date org-date false))
   ([product duration date org-date trial]
    (merge
-     {:quantity "1"
-      :product_id product
-      :transaction_id (transaction-id date)
-      :original_transaction_id (transaction-id org-date)
-      :web_order_line_item_id (web-order-line-item-id date)
-      :is_trial_period (str trial)}
-     (dates :purchase date)
-     (dates :original_purchase org-date)
-     (dates :expires (t/plus date duration)))))
+    {:quantity "1"
+     :product_id product
+     :transaction_id (transaction-id date)
+     :original_transaction_id (transaction-id org-date)
+     :web_order_line_item_id (web-order-line-item-id date)
+     :is_trial_period (str trial)}
+    (dates :purchase date)
+    (dates :original_purchase org-date)
+    (dates :expires (t/plus date duration)))))
 
 (defn receipt
   "Generate an app receipt."
   [date iaps]
   (merge
-    {:receipt_type "ProductionSandbox"
-     :adam_id 0
-     :app_item_id 0
-     :bundle_id BUNDLE-ID
-     :application_version "12345"
-     :download_id 0
-     :version_external_identifier 0
-     :original_application_version "1.0"
-     :in_app iaps}
-    (dates :original_purchase ORIGINAL-PURCHASE-DATE)
-    (dates :receipt_creation date)
-    (dates :request (t/now))))
+   {:receipt_type "ProductionSandbox"
+    :adam_id 0
+    :app_item_id 0
+    :bundle_id BUNDLE-ID
+    :application_version "12345"
+    :download_id 0
+    :version_external_identifier 0
+    :original_application_version "1.0"
+    :in_app iaps}
+   (dates :original_purchase ORIGINAL-PURCHASE-DATE)
+   (dates :receipt_creation date)
+   (dates :request (t/now))))
 
 (defn response
   "Generate an Apple receipt validation response."
@@ -85,22 +85,22 @@
                   :plan_duration (t/months 1)
                   :start_date now}
         subs (->> subs
-               (sort-by :start_date)
-               (partition 2 1)
-               (#(concat % (list (list (last subs) {}))))
-               (map
-                 #(merge (assoc defaults :end_date (:start_date (last %) now)) (first %))))
+                  (sort-by :start_date)
+                  (partition 2 1)
+                  (#(concat % (list (list (last subs) {}))))
+                  (map
+                   #(merge (assoc defaults :end_date (:start_date (last %) now)) (first %))))
         iaps (->> subs
-               (mapcat (fn [sub]
-                         (for [date (p/periodic-seq (:start_date sub) (:plan_duration sub))
-                               :while (or (t/before? date (:end_date sub))
-                                        (t/equal? date (:end_date sub)))]
-                           (iap
-                             (:product sub)
-                             (:plan_duration sub)
-                             date
-                             (:start_date sub)
-                             (and (:trialed sub) (= date (:start_date sub))))))))]
+                  (mapcat (fn [sub]
+                            (for [date (p/periodic-seq (:start_date sub) (:plan_duration sub))
+                                  :while (or (t/before? date (:end_date sub))
+                                             (t/equal? date (:end_date sub)))]
+                              (iap
+                               (:product sub)
+                               (:plan_duration sub)
+                               date
+                               (:start_date sub)
+                               (and (:trialed sub) (= date (:start_date sub))))))))]
 
     {:status 0
      :environment ENVIRONMENT
