@@ -109,6 +109,6 @@
 
 (defn scratch
   []
-  (response {:product "com.electricobjects.artclub.subscription.monthly.notrial"
+  (response {:product "com.subsystem.subscription.monthly"
              :plan_duration (t/months 1)
              :start_date (t/date-time 2016 8 14 4 3 27 456)}))
