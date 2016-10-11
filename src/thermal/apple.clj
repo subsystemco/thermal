@@ -44,19 +44,20 @@
 
 (defn iap
   "Generate an In App Purchase receipt."
-  ([product duration date org-date]
-   (iap product duration date org-date false))
-  ([product duration date org-date trial]
-   (merge
-    {:quantity "1"
-     :product_id product
-     :transaction_id (transaction-id date)
-     :original_transaction_id (transaction-id org-date)
-     :web_order_line_item_id (web-order-line-item-id date)
-     :is_trial_period (str trial)}
-    (dates :purchase date)
-    (dates :original_purchase org-date)
-    (dates :expires (t/plus date duration)))))
+  [{:keys [product-id duration is-trial-period
+           purchase-date original-purchase-date
+           cancellation-date]}]
+  (merge
+   {:quantity "1"
+    :product_id product-id
+    :transaction_id (transaction-id purchase-date)
+    :original_transaction_id (transaction-id original-purchase-date)
+    :web_order_line_item_id (web-order-line-item-id purchase-date)
+    :is_trial_period (if is-trial-period "true" "false")}
+   (dates :purchase purchase-date)
+   (dates :original_purchase original-purchase-date)
+   (dates :expires (t/plus purchase-date duration))
+   (if cancellation-date (dates :cancellation cancellation-date))))
 
 (defn receipt
   "Generate an app receipt."
@@ -94,12 +95,15 @@
                   (mapcat (fn [sub]
                             (for [date (p/periodic-seq (:start_date sub) (:plan_duration sub))
                                   :while (t/after? (:end_date sub) date)]
-                              (iap
-                               (:product sub)
-                               (:plan_duration sub)
-                               date
-                               (:start_date sub)
-                               (and (:trialed sub) (= date (:start_date sub))))))))]
+                              (iap {:product-id (:product sub)
+                                    :duration (:plan_duration sub)
+                                    :is-trial-period (and (:trialed sub) (= date (:start_date sub)))
+                                    :purchase-date date
+                                    :original-purchase-date (:start_date sub)
+                                    :cancellation-date (let [end (t/plus date (:plan_duration sub))]
+                                                         (if (and (:canceled sub)
+                                                                  (not (t/after? (:end_date sub) end)))
+                                                           end))})))))]
 
     {:status 0
      :environment ENVIRONMENT
@@ -123,4 +127,10 @@
              :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -6))}
             {:product "com.subsystem.subscription.yearly"
              :plan_duration (t/years 1)
-             :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -3))}))
+             :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -3))})
+  (response {:product "com.subsystem.subscription.monthly"
+             :plan_duration (t/months 1)
+             :start_date (t/minus (t/now) (t/months 3))
+             :end_date (t/minus (t/now) (t/months 1))
+             :trialed true
+             :canceled true}))
