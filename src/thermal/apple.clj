@@ -86,15 +86,14 @@
                   :start_date now}
         subs (->> subs
                   (sort-by :start_date)
+                  (#(concat % (list {})))
                   (partition 2 1)
-                  (#(concat % (list (list (last subs) {}))))
                   (map
                    #(merge (assoc defaults :end_date (:start_date (last %) now)) (first %))))
         iaps (->> subs
                   (mapcat (fn [sub]
                             (for [date (p/periodic-seq (:start_date sub) (:plan_duration sub))
-                                  :while (or (t/before? date (:end_date sub))
-                                             (t/equal? date (:end_date sub)))]
+                                  :while (t/after? (:end_date sub) date)]
                               (iap
                                (:product sub)
                                (:plan_duration sub)
