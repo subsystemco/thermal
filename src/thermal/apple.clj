@@ -117,4 +117,10 @@
              :start_date (t/minus (t/now) (t/months 3))
              :end_date (t/minus (t/now) (t/months 1))
              :trialed true
-             :canceled true}))
+             :canceled true})
+  (response {:product "com.subsystem.subscription.monthly"
+             :plan_duration (t/months 1)
+             :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -6))}
+            {:product "com.subsystem.subscription.yearly"
+             :plan_duration (t/years 1)
+             :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -3))}))
