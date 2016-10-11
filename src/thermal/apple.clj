@@ -111,4 +111,10 @@
   []
   (response {:product "com.subsystem.subscription.monthly"
              :plan_duration (t/months 1)
-             :start_date (t/date-time 2016 8 14 4 3 27 456)}))
+             :start_date (t/date-time 2016 8 14 4 3 27 456)})
+  (response {:product "com.subsystem.subscription.monthly"
+             :plan_duration (t/months 1)
+             :start_date (t/minus (t/now) (t/months 3))
+             :end_date (t/minus (t/now) (t/months 1))
+             :trialed true
+             :canceled true}))
