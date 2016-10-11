@@ -9,7 +9,6 @@
 (def ENVIRONMENT "Sandbox")
 (def BUNDLE-ID "test-bundle-id")
 (def PRODUCT-ID "test-product-id")
-(def ORIGINAL-PURCHASE-DATE (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz))
 
 (defn string->base64 [input]
   "Encodes an UTF-8 string into a base64 UTF-8 string"
@@ -33,6 +32,7 @@
 (def gmt-tz (t/time-zone-for-id gmt-tz-id))
 (def la-tz-id "America/Los_Angeles")
 (def la-tz (t/time-zone-for-id la-tz-id))
+(def original-purchase-date (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz))
 
 (defn dates
   "Return a map of dates in Apple's three formats: timestamp, GMT, and PST."
@@ -71,7 +71,7 @@
     :version_external_identifier 0
     :original_application_version "1.0"
     :in_app iaps}
-   (dates :original_purchase ORIGINAL-PURCHASE-DATE)
+   (dates :original_purchase original-purchase-date)
    (dates :receipt_creation date)
    (dates :request (t/now))))
 
