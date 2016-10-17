@@ -4,7 +4,8 @@
             [clj-time.local :as l]
             [clj-time.periodic :as p]
             [clojure.data.codec.base64 :as b64]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [apple-receipt.core :as apple-receipt]))
 
 (def ENVIRONMENT "Sandbox")
 (def BUNDLE-ID "test-bundle-id")
@@ -47,34 +48,36 @@
   [{:keys [product-id duration is-trial-period
            purchase-date original-purchase-date
            cancellation-date]}]
-  (merge
-   {:quantity "1"
-    :product_id product-id
-    :transaction_id (transaction-id purchase-date)
-    :original_transaction_id (transaction-id original-purchase-date)
-    :web_order_line_item_id (web-order-line-item-id purchase-date)
-    :is_trial_period (if is-trial-period "true" "false")}
-   (dates :purchase purchase-date)
-   (dates :original_purchase original-purchase-date)
-   (dates :expires (t/plus purchase-date duration))
-   (if cancellation-date (dates :cancellation cancellation-date))))
+  (apple-receipt/map->IAPReceipt
+   (merge
+    {:quantity "1"
+     :product_id product-id
+     :transaction_id (transaction-id purchase-date)
+     :original_transaction_id (transaction-id original-purchase-date)
+     :web_order_line_item_id (web-order-line-item-id purchase-date)
+     :is_trial_period (if is-trial-period "true" "false")}
+    (dates :purchase purchase-date)
+    (dates :original_purchase original-purchase-date)
+    (dates :expires (t/plus purchase-date duration))
+    (if cancellation-date (dates :cancellation cancellation-date)))))
 
 (defn receipt
   "Generate an app receipt."
   [date iaps]
-  (merge
-   {:receipt_type "ProductionSandbox"
-    :adam_id 0
-    :app_item_id 0
-    :bundle_id BUNDLE-ID
-    :application_version "12345"
-    :download_id 0
-    :version_external_identifier 0
-    :original_application_version "1.0"
-    :in_app iaps}
-   (dates :original_purchase original-purchase-date)
-   (dates :receipt_creation date)
-   (dates :request (t/now))))
+  (apple-receipt/map->AppReceipt
+   (merge
+    {:receipt_type "ProductionSandbox"
+     :adam_id 0
+     :app_item_id 0
+     :bundle_id BUNDLE-ID
+     :application_version "12345"
+     :download_id 0
+     :version_external_identifier 0
+     :original_application_version "1.0"
+     :in_app iaps}
+    (dates :original_purchase original-purchase-date)
+    (dates :receipt_creation date)
+    (dates :request (t/now)))))
 
 (defn response
   "Generate an Apple receipt validation response."
@@ -105,11 +108,12 @@
                                                                   (not (t/after? (:end_date sub) end)))
                                                            end))})))))]
 
-    {:status 0
-     :environment ENVIRONMENT
-     :receipt (receipt (-> subs first :start_date) iaps)
-     :latest_receipt_info iaps
-     :latest_receipt (string->base64 (json/write-str iaps))}))
+    (apple-receipt/map->Response
+     {:status 0
+      :environment ENVIRONMENT
+      :receipt (receipt (-> subs first :start_date) iaps)
+      :latest_receipt_info iaps
+      :latest_receipt (string->base64 (json/write-str iaps))})))
 
 (defn scratch
   []
