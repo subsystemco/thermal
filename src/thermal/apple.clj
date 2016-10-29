@@ -5,7 +5,8 @@
             [clj-time.periodic :as p]
             [clojure.data.codec.base64 :as b64]
             [clojure.data.json :as json]
-            [apple-receipt.core :as apple-receipt]))
+            [apple-receipt.record :as record]
+            [apple-receipt.status-code :as status-code]))
 
 (def ENVIRONMENT "Sandbox")
 (def BUNDLE-ID "test-bundle-id")
@@ -48,7 +49,7 @@
   [{:keys [product-id duration is-trial-period
            purchase-date original-purchase-date
            cancellation-date]}]
-  (apple-receipt/map->IAPReceipt
+  (record/map->IAPReceipt
    (merge
     {:quantity "1"
      :product_id product-id
@@ -64,7 +65,7 @@
 (defn receipt
   "Generate an app receipt."
   [date iaps]
-  (apple-receipt/map->AppReceipt
+  (record/map->AppReceipt
    (merge
     {:receipt_type "ProductionSandbox"
      :adam_id 0
@@ -108,8 +109,8 @@
                                                                   (not (t/after? (:end_date sub) end)))
                                                            end))})))))]
 
-    (apple-receipt/map->Response
-     {:status 0
+    (record/api-json->Response
+     {:status status-code/success
       :environment ENVIRONMENT
       :receipt (receipt (-> subs first :start_date) iaps)
       :latest_receipt_info iaps
