@@ -1,6 +1,6 @@
 (ns thermal.test-runner
  (:require [doo.runner :refer-macros [doo-tests]]
-           [thermal.core-test]
+           [thermal.apple-test]
            [cljs.nodejs :as nodejs]))
 
 (try
@@ -8,4 +8,4 @@
   (catch :default _))
 
 (doo-tests
- 'thermal.core-test)
+ 'thermal.apple-test)
