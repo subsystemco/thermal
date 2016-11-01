@@ -1,20 +1,19 @@
 (ns thermal.apple
-  (:require [clj-time.core :as t]
-            [clj-time.coerce :as c]
-            [clj-time.local :as l]
-            [clj-time.periodic :as p]
-            [clojure.data.codec.base64 :as b64]
-            [clojure.data.json :as json]
+  (:require [thermal.utils :as utils]
             [apple-receipt.record :as record]
-            [apple-receipt.status-code :as status-code]))
+            [apple-receipt.status-code :as status-code]
+            #?@(:clj  [[clj-time.core :as t]
+                       [clj-time.coerce :as c]
+                       [clj-time.local :as l]
+                       [clj-time.periodic :as p]]
+                :cljs [[cljs-time.core :as t]
+                       [cljs-time.coerce :as c]
+                       [cljs-time.local :as l]
+                       [cljs-time.periodic :as p]])))
 
 (def ENVIRONMENT "Sandbox")
 (def BUNDLE-ID "test-bundle-id")
 (def PRODUCT-ID "test-product-id")
-
-(defn string->base64 [input]
-  "Encodes an UTF-8 string into a base64 UTF-8 string"
-  (String. (b64/encode (.getBytes input)) "UTF-8"))
 
 (defn transaction-id
   "Generate a transaction id from a date."
@@ -114,7 +113,7 @@
       :environment ENVIRONMENT
       :receipt (receipt (-> subs first :start_date) iaps)
       :latest_receipt_info iaps
-      :latest_receipt (string->base64 (json/write-str iaps))})))
+      :latest_receipt (utils/string->base64 (utils/to-json iaps))})))
 
 (defn scratch
   []
