@@ -52,7 +52,7 @@
   [prop-name date]
   (let [prop-name (name prop-name)]
     {(keyword (str prop-name "_date")) (str (format-date date gmt-tz) " " gmt-tz-id)
-     (keyword (str prop-name "_date_ms")) (str (c/to-epoch date))
+     (keyword (str prop-name "_date_ms")) (str (c/to-long date))
      (keyword (str prop-name "_date_pst")) (str (format-date date la-tz) " " la-tz-id)}))
 
 (defn iap
