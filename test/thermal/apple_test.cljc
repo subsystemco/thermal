@@ -5,6 +5,18 @@
                 :cljs [[cljs.test :refer-macros [deftest is testing]]
                        [cljs-time.core :as t]])))
 
+(deftest defaults
+  (testing "sets sandbox defaults"
+    (let [resp (response {:product "com.subsystem.subscription.monthly"
+                          :plan_duration (t/months 1)
+                          :start_date (t/now)})
+          receipt (:receipt resp)]
+      (is (= (:environment "Sandbox")))
+      (is (= (:receipt_type receipt) "ProductionSandbox"))
+      (is (= (:original_purchase_date receipt) "2013-08-01 07:00:00 Etc/GMT"))
+      (is (= (:original_purchase_date_ms receipt) "1375340400000"))
+      (is (= (:original_purchase_date_pst receipt) "2013-08-01 00:00:00 America/Los_Angeles")))))
+
 (deftest generates-receipts
   (testing "generates an active monthly subscription receipt"
     (response {:product "com.subsystem.subscription.monthly"
