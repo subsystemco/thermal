@@ -44,8 +44,9 @@
 (def gmt-tz (time-zone-for-id gmt-tz-id))
 (def la-tz-id "America/Los_Angeles")
 (def la-tz (time-zone-for-id la-tz-id))
-(def original-purchase-date #?(:clj  (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz)
-                               :cljs (t/date-time 2013 8 1 7)))
+(def sandbox-original-purchase-date
+  #?(:clj  (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz)
+     :cljs (t/date-time 2013 8 1 7)))
 
 (defn dates
   "Return a map of dates in Apple's three formats: timestamp, GMT, and PST."
@@ -65,11 +66,11 @@
     {:quantity "1"
      :product_id product-id
      :transaction_id (transaction-id purchase-date)
-     :original_transaction_id (transaction-id original-purchase-date)
+     :original_transaction_id (transaction-id sandbox-original-purchase-date)
      :web_order_line_item_id (web-order-line-item-id purchase-date)
      :is_trial_period (if is-trial-period "true" "false")}
     (dates :purchase purchase-date)
-    (dates :original_purchase original-purchase-date)
+    (dates :original_purchase sandbox-original-purchase-date)
     (dates :expires (t/plus purchase-date duration))
     (if cancellation-date (dates :cancellation cancellation-date)))))
 
@@ -87,7 +88,7 @@
      :version_external_identifier 0
      :original_application_version "1.0"
      :in_app iaps}
-    (dates :original_purchase original-purchase-date)
+    (dates :original_purchase sandbox-original-purchase-date)
     (dates :receipt_creation date)
     (dates :request (t/now)))))
 
