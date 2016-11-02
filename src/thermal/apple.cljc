@@ -126,11 +126,3 @@
       :receipt (receipt (-> subs first :start_date) iaps)
       :latest_receipt_info iaps
       :latest_receipt (utils/string->base64 (utils/to-json iaps))})))
-
-(defn scratch []
-  (.toLocaleString (js/Date.) "en-US" (js-obj "timeZone" "Pacific/Chatham"))
-  (tz "2012-01-01")
-  (tz (tz "2012-01-01"), "%c", "fr_FR", "America/Montreal")
-  (.toLocaleString (t/now) "en-US" (js-obj "timeZone" "Pacific/Chatham"))
-  (tz (t/now), "%c", "en_US", "Pacific/Chatham")
-  )
