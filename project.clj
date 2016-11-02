@@ -13,8 +13,9 @@
                  [apple-receipt "0.1.0-SNAPSHOT"]]
   :plugins [[s3-wagon-private "1.2.0"]
             [lein-cljsbuild "1.1.3"]
-            [lein-npm       "0.6.2"]
-            [lein-doo       "0.1.7"]]
+            [lein-npm  "0.6.2"]
+            [lein-doo  "0.1.7"]
+            [lein-auto "0.1.2"]]
   :npm {:dependencies [[source-map-support "0.4.0"]
                        [timezone "1.0.6"]]}
 
