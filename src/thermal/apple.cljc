@@ -6,10 +6,15 @@
                        [clj-time.coerce :as c]
                        [clj-time.local :as l]
                        [clj-time.periodic :as p]]
-                :cljs [[cljs-time.core :as t]
+                :cljs [[cljs.nodejs :as nodejs]
+                       [cljs-time.core :as t]
                        [cljs-time.coerce :as c]
                        [cljs-time.local :as l]
-                       [cljs-time.periodic :as p]])))
+                       [cljs-time.periodic :as p]
+                       [cljs-time.extend :as extend]]))
+  (:import #?(:cljs goog.i18n.TimeZone)))
+
+#?(:cljs (def ^:private tz (nodejs/require "timezone/loaded")))
 
 (def ENVIRONMENT "Sandbox")
 (def BUNDLE-ID "test-bundle-id")
@@ -25,23 +30,30 @@
   [date]
   (str "10000000" (subs (str (c/to-epoch date)) 2)))
 
+(defn time-zone-for-id
+  [id]
+  #?(:clj  (t/time-zone-for-id id)
+     :cljs (.createTimeZone goog.i18n.TimeZone (js-obj "id" id))))
+
 (defn format-date
-  [date]
-  (l/format-local-time date :mysql))
+  [date zone]
+  #?(:clj  (l/format-local-time (t/to-time-zone date) :mysql)
+     :cljs (tz date "%F %T" "en_US" (.getTimeZoneId zone))))
 
 (def gmt-tz-id "Etc/GMT")
-(def gmt-tz (t/time-zone-for-id gmt-tz-id))
+(def gmt-tz (time-zone-for-id gmt-tz-id))
 (def la-tz-id "America/Los_Angeles")
-(def la-tz (t/time-zone-for-id la-tz-id))
-(def original-purchase-date (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz))
+(def la-tz (time-zone-for-id la-tz-id))
+(def original-purchase-date #?(:clj  (t/from-time-zone (t/date-time 2013 8 1 7) gmt-tz)
+                               :cljs (t/date-time 2013 8 1 7)))
 
 (defn dates
   "Return a map of dates in Apple's three formats: timestamp, GMT, and PST."
   [prop-name date]
   (let [prop-name (name prop-name)]
-    {(keyword (str prop-name "_date")) (str (format-date (t/to-time-zone date gmt-tz)) " " gmt-tz-id)
+    {(keyword (str prop-name "_date")) (str (format-date date gmt-tz) " " gmt-tz-id)
      (keyword (str prop-name "_date_ms")) (str (c/to-epoch date))
-     (keyword (str prop-name "_date_pst")) (str (format-date (t/to-time-zone date la-tz)) " " la-tz-id)}))
+     (keyword (str prop-name "_date_pst")) (str (format-date date la-tz) " " la-tz-id)}))
 
 (defn iap
   "Generate an In App Purchase receipt."
@@ -114,3 +126,11 @@
       :receipt (receipt (-> subs first :start_date) iaps)
       :latest_receipt_info iaps
       :latest_receipt (utils/string->base64 (utils/to-json iaps))})))
+
+(defn scratch []
+  (.toLocaleString (js/Date.) "en-US" (js-obj "timeZone" "Pacific/Chatham"))
+  (tz "2012-01-01")
+  (tz (tz "2012-01-01"), "%c", "fr_FR", "America/Montreal")
+  (.toLocaleString (t/now) "en-US" (js-obj "timeZone" "Pacific/Chatham"))
+  (tz (t/now), "%c", "en_US", "Pacific/Chatham")
+  )
