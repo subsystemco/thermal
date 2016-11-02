@@ -1,17 +1,35 @@
 (ns thermal.apple-test
   (:require [thermal.apple :refer [response]]
+            [thermal.test-utils :refer [rfc3339-date?]]
             #?@(:clj  [[clojure.test :refer :all]
-                       [clj-time.core :as t]]
+                       [clj-time.core :as t]
+                       [clj-time.coerce :as c]]
                 :cljs [[cljs.test :refer-macros [deftest is testing]]
-                       [cljs-time.core :as t]])))
+                       [cljs-time.core :as t]
+                       [cljs-time.coerce :as c]])))
 
 (deftest defaults
-  (testing "sets sandbox defaults"
+  (testing "sets general defaults"
     (let [resp (response {:product "com.subsystem.subscription.monthly"
                           :plan_duration (t/months 1)
                           :start_date (t/now)})
           receipt (:receipt resp)]
-      (is (= (:environment "Sandbox")))
+      (is (= (:status resp) 0))
+      (is (= (:adam_id receipt) 0))
+      (is (= (:app_item_id receipt) 0))
+      (is (= (:application_version receipt) "1"))
+      (is (= (:download_id receipt) 0))
+      (is (= (:version_external_identifier receipt) 0))
+      (is (rfc3339-date? (:request_date receipt) "Etc/GMT"))
+      (is (= (subs (:request_date_ms receipt) 0 10) (subs (str (c/to-long (t/now))) 0 10)))
+      (is (rfc3339-date? (:request_date_pst receipt) "America/Los_Angeles"))))
+
+  (testing "sets sandbox specific defaults"
+    (let [resp (response {:product "com.subsystem.subscription.monthly"
+                          :plan_duration (t/months 1)
+                          :start_date (t/now)})
+          receipt (:receipt resp)]
+      (is (= (:environment resp) "Sandbox"))
       (is (= (:receipt_type receipt) "ProductionSandbox"))
       (is (= (:original_purchase_date receipt) "2013-08-01 07:00:00 Etc/GMT"))
       (is (= (:original_purchase_date_ms receipt) "1375340400000"))

@@ -83,7 +83,7 @@
      :adam_id 0
      :app_item_id 0
      :bundle_id BUNDLE-ID
-     :application_version "12345"
+     :application_version "1"
      :download_id 0
      :version_external_identifier 0
      :original_application_version "1.0"
