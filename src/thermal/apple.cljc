@@ -37,7 +37,7 @@
 
 (defn format-date
   [date zone]
-  #?(:clj  (l/format-local-time (t/to-time-zone date) :mysql)
+  #?(:clj  (l/format-local-time (t/to-time-zone date zone) :mysql)
      :cljs (tz date "%F %T" "en_US" (.getTimeZoneId zone))))
 
 (def gmt-tz-id "Etc/GMT")
