@@ -22,7 +22,8 @@
       (is (= (:version_external_identifier receipt) 0))
       (is (rfc3339-date? (:request_date receipt) "Etc/GMT"))
       (is (= (subs (:request_date_ms receipt) 0 10) (subs (str (c/to-long (t/now))) 0 10)))
-      (is (rfc3339-date? (:request_date_pst receipt) "America/Los_Angeles"))))
+      (is (rfc3339-date? (:request_date_pst receipt) "America/Los_Angeles"))
+      (is (= (:original_application_version receipt) "1.0"))))
 
   (testing "sets sandbox specific defaults"
     (let [resp (response {:product "com.subsystem.subscription.monthly"
