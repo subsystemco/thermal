@@ -8,6 +8,11 @@
                        [cljs-time.core :as t]
                        [cljs-time.coerce :as c]])))
 
+(defn in-same-sec
+  [ts1 ts2]
+  (= (subs (str ts1) 0 10)
+     (subs (str ts2) 0 10)))
+
 (deftest defaults
   (testing "sets general defaults"
     (let [resp (response {:product "com.subsystem.subscription.monthly"
@@ -21,7 +26,7 @@
       (is (= (:download_id receipt) 0))
       (is (= (:version_external_identifier receipt) 0))
       (is (rfc3339-date? (:request_date receipt) "Etc/GMT"))
-      (is (= (subs (:request_date_ms receipt) 0 10) (subs (str (c/to-long (t/now))) 0 10)))
+      (is (in-same-sec (:request_date_ms receipt) (c/to-long (t/now))))
       (is (rfc3339-date? (:request_date_pst receipt) "America/Los_Angeles"))
       (is (= (:original_application_version receipt) "1.0"))))
 
@@ -67,4 +72,20 @@
                :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -6))}
               {:product "com.subsystem.subscription.yearly"
                :plan_duration (t/years 1)
-               :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -3))})))
+               :start_date (t/plus (t/now) (t/days 1) (t/years -1) (t/months -3))}))
+
+  (testing "sets request_date to the current time"
+    (let [resp (response {:product "com.subsystem.subscription.monthly"
+                          :plan_duration (t/months 1)
+                          :start_date (t/date-time 2016 8 14 4 3 27 456)})]
+      (is (in-same-sec (get-in resp [:receipt :request_date_ms])
+                       (c/to-long (t/now))))))
+
+  (testing "changes latest_receipt based on current time"
+    (let [resp1 (response {:product "com.subsystem.subscription.monthly"
+                           :plan_duration (t/months 1)
+                           :start_date (t/date-time 2016 8 14 4 3 27 456)})
+          resp2 (response {:product "com.subsystem.subscription.monthly"
+                           :plan_duration (t/months 1)
+                           :start_date (t/date-time 2016 8 14 4 3 27 456)})]
+      (is (not= (:latest_receipt resp2) (:latest_receipt resp1))))))

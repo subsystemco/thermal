@@ -119,11 +119,13 @@
                                     :cancellation-date (let [end (t/plus date (:plan_duration sub))]
                                                          (if (and (:canceled sub)
                                                                   (not (t/after? (:end_date sub) end)))
-                                                           end))})))))]
+                                                           end))})))))
+        rcpt (receipt (-> subs first :start_date) iaps)]
 
     (record/api-json->Response
      {:status status-code/success
       :environment ENVIRONMENT
-      :receipt (receipt (-> subs first :start_date) iaps)
+      :receipt rcpt
       :latest_receipt_info iaps
-      :latest_receipt (utils/string->base64 (utils/to-json iaps))})))
+      :latest_receipt (utils/string->base64
+                       (str (:request_date_ms rcpt) (utils/to-json iaps)))})))
