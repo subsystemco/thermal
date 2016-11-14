@@ -76,21 +76,22 @@
 
 (defn receipt
   "Generate an app receipt."
-  [date iaps]
-  (record/map->AppReceipt
-   (merge
-    {:receipt_type "ProductionSandbox"
-     :adam_id 0
-     :app_item_id 0
-     :bundle_id BUNDLE-ID
-     :application_version "1"
-     :download_id 0
-     :version_external_identifier 0
-     :original_application_version "1.0"
-     :in_app iaps}
-    (dates :original_purchase sandbox-original-purchase-date)
-    (dates :receipt_creation date)
-    (dates :request (t/now)))))
+  ([date] (receipt date []))
+  ([date iaps]
+   (record/map->AppReceipt
+    (merge
+     {:receipt_type "ProductionSandbox"
+      :adam_id 0
+      :app_item_id 0
+      :bundle_id BUNDLE-ID
+      :application_version "1"
+      :download_id 0
+      :version_external_identifier 0
+      :original_application_version "1.0"
+      :in_app iaps}
+     (dates :original_purchase sandbox-original-purchase-date)
+     (dates :receipt_creation date)
+     (dates :request (t/now))))))
 
 (defn response
   "Generate an Apple receipt validation response."
