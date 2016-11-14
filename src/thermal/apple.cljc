@@ -66,11 +66,11 @@
     {:quantity "1"
      :product_id product-id
      :transaction_id (transaction-id purchase-date)
-     :original_transaction_id (transaction-id sandbox-original-purchase-date)
+     :original_transaction_id (transaction-id original-purchase-date)
      :web_order_line_item_id (web-order-line-item-id purchase-date)
      :is_trial_period (if is-trial-period "true" "false")}
     (dates :purchase purchase-date)
-    (dates :original_purchase sandbox-original-purchase-date)
+    (dates :original_purchase original-purchase-date)
     (dates :expires (t/plus purchase-date duration))
     (if cancellation-date (dates :cancellation cancellation-date)))))
 
