@@ -1,5 +1,5 @@
 (ns thermal.apple
-  (:require [thermal.utils :as utils]
+  (:require [two-headed-boy.core :as utils]
             [apple-receipt.record :as record]
             [apple-receipt.status-code :as status-code]
             #?@(:clj  [[clj-time.core :as t]
