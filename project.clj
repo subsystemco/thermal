@@ -1,4 +1,4 @@
-(defproject thermal "0.1.0-SNAPSHOT"
+(defproject co.subsystem/thermal "0.1.0-SNAPSHOT"
   :description "A generator for receipts as returned by Apple's StoreKit APIs and verifyReceipt endpoints."
   :url "https://github.com/leppert/thermal"
   :license {:name "Eclipse Public License"
@@ -10,7 +10,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.0-alpha2"]
                  [org.clojure/data.codec "0.1.0"]
                  [cheshire "5.6.3"]
-                 [apple-receipt "0.1.0-SNAPSHOT"]
+                 [co.subsystem/apple-receipt "0.1.0-SNAPSHOT"]
                  [two-headed-boy "0.1.0"]]
   :plugins [[s3-wagon-private "1.2.0"]
             [lein-cljsbuild "1.1.4"]
